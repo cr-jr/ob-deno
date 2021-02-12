@@ -47,7 +47,10 @@
   :safe #'stringp)
 
 (defvar ob-deno-function-wrapper
-  "Deno.stdout.write(new TextEncoder().encode(Deno.inspect((() => {%s})())));"
+  "
+const contentBytes = new TextEncoder().encode(Deno.inspect(() => {%s}));
+await Deno.writeAll(Deno.stdout, contentBytes)
+"
   "Javascript/TypeScript code to print value of body.")
 
 (defun org-babel-execute:deno (body params)
@@ -55,7 +58,7 @@
 You can also specify parameters in `PARAMS'.
 This function is called by `org-babel-execute-src-block'."
   (let* ((no-color-env (getenv "NO_COLOR"))
-	 (ob-deno-cmd (or (cdr (assq :cmd params)) (format "%s run" ob-deno-cmd)))
+	 (ob-deno-cmd (or (cdr (assq :cmd params)) (format "%s run --no-check" ob-deno-cmd)))
 	 (allow (ob-deno-allow-params (cdr (assq :allow params))))
 	 (ob-deno-cmd-with-permission (concat ob-deno-cmd " " allow))
          (result-type (cdr (assq :result-type params)))
