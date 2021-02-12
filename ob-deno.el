@@ -58,23 +58,23 @@ await Deno.writeAll(Deno.stdout, contentBytes)
 You can also specify parameters in `PARAMS'.
 This function is called by `org-babel-execute-src-block'."
   (let* ((no-color-env (getenv "NO_COLOR"))
-	 (ob-deno-cmd (or (cdr (assq :cmd params)) (format "%s run --no-check" ob-deno-cmd)))
-	 (allow (ob-deno-allow-params (cdr (assq :allow params))))
-	 (ob-deno-cmd-with-permission (concat ob-deno-cmd " " allow))
-         (result-type (cdr (assq :result-type params)))
-         (full-body (org-babel-expand-body:generic
-		     body params (org-babel-variable-assignments:deno params)))
-	 (result (let ((script-file (concat (org-babel-temp-file "deno-script-") ".ts")))
-		   (with-temp-file script-file
-		     (insert
-		      ;; return the value or the output
-		      (if (string= result-type "value")
-			  (format ob-deno-function-wrapper full-body)
-			full-body)))
-		   (setenv "NO_COLOR" "true")
-		   (org-babel-eval
-		    (format "%s %s" ob-deno-cmd-with-permission
-			    (org-babel-process-file-name script-file)) ""))))
+	        (ob-deno-cmd (or (cdr (assq :cmd params)) (format "%s run --no-check" ob-deno-cmd)))
+	        (allow (ob-deno-allow-params (cdr (assq :allow params))))
+	        (ob-deno-cmd-with-permission (concat ob-deno-cmd " " allow))
+          (result-type (cdr (assq :result-type params)))
+          (full-body (org-babel-expand-body:generic
+		                   body params (org-babel-variable-assignments:deno params)))
+	        (result (let ((script-file (concat (org-babel-temp-file "deno-script-") ".ts")))
+		                (with-temp-file script-file
+		                  (insert
+		                    ;; return the value or the output
+		                    (if (string= result-type "value")
+			                    (format ob-deno-function-wrapper full-body)
+			                    full-body)))
+		                (setenv "NO_COLOR" "true")
+		                (org-babel-eval
+		                  (format "%s %s" ob-deno-cmd-with-permission
+			                  (org-babel-process-file-name script-file)) ""))))
     (setenv "NO_COLOR" no-color-env)
     (org-babel-result-cond (cdr (assq :result-params params))
       result (ob-deno-read result))))
